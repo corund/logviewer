@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ivy-module version="2.0">
+    <info organisation="net.corund" module="logviewer"/>
+    <dependencies>
+        <dependency org="commons-lang" name="commons-lang" rev="2.5"/>
+        <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.1.+"/>
+        <dependency org="com.google.code.gson" name="gson" rev="1.7.+"/>
+    </dependencies>
+</ivy-module>

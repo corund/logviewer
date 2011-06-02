@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="logviewer" xmlns:ivy="antlib:org.apache.ivy.ant" default="all">
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="ivy.jar.dir" value="${build.dir}/ivy"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+    <property name="ivy.install.version" value="2.2.0"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="ivy.checksums" value=""/>
+    
+    <condition property="skip.ivy.download">
+        <available file="${ivy.jar.file}"/>
+    </condition>
+    
+    <target name="prepare" description="-> Prepare build directories">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${ivy.jar.dir}"/>
+    </target>
+    
+    <target name="ivy-download" unless="skip.ivy.download">
+      <mkdir dir="${ivy.jar.dir}"/>
+      <echo message="Installing ivy..."/>
+      <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+           dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="ivy-init" depends="ivy-download"
+            description="-> Defines ivy tasks and loads global settings">
+      <path id="ivy.lib.path">
+        <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+      </path>
+      <taskdef resource="org/apache/ivy/ant/antlib.xml"
+               uri="antlib:org.apache.ivy.ant"
+               classpathref="ivy.lib.path"/>
+    </target>
+    
+    <target name="libraries" depends="ivy-init" description="-> Download required libraries">
+        <ivy:retrieve pattern="${lib.dir}/[artifact]-[revision].[ext]" sync="true" type="jar"/>
+    </target>
+    
+    <target name="all">
+        <echo message="all"/>
+    </target>
+</project>
