@@ -28,7 +28,7 @@ public class LogEntry {
     
     public void populate(String[] arrs) {
         nickname = arrs[0];
-        datetime = new Date(Integer.parseInt(arrs[1]) * 1000);
+        datetime = new Date(Long.parseLong(arrs[1]) * 1000);
         message = arrs[2];
     }
     
