@@ -5,31 +5,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
 public class LogFetcher {
     private String host;
     private String baseUrl = "/vd/perl-kr";
-    private String username;
-    private String password;
     
-    private HttpClient client;
-    
-    /**
-     * 초기화 코드. 프로퍼티 값을 설정한 후 호출해야 한다.
-     */
-    public void init() {
-        this.client = buildClient();
-    }
+    private HttpClientApi httpClientApi;
     
     public List<LogEntry> logEntries(int year, int month, int day) throws Exception {
         final StringBuilder sb = new StringBuilder();
@@ -39,13 +22,8 @@ public class LogFetcher {
         sb.append("/");
         sb.append(String.format("%04d/%02d/%02d", year, month, day));
         
-        final HttpGet httpGet = new HttpGet(sb.toString());
-        
-        HttpResponse response = this.client.execute(httpGet);
-        
-        int code = response.getStatusLine().getStatusCode();
-        HttpEntity entity = response.getEntity();
-        InputStream is = entity.getContent();
+        final String uri = sb.toString();
+        InputStream is = httpClientApi.getContent(uri);
 
         List<LogEntry> entries = new ArrayList<LogEntry>();
         
@@ -68,15 +46,6 @@ public class LogFetcher {
         return entries;
     }
     
-    // UnitTest를 할 때 이 메서드를 재정의해서 mockClient를 집어넣는다.
-    protected HttpClient buildClient() {
-        DefaultHttpClient client = new DefaultHttpClient();
-        client.getCredentialsProvider().setCredentials(
-                new AuthScope(host, 80),
-                new UsernamePasswordCredentials(username, password));
-        return client;
-    }
-    
     public String getHost() {
         return host;
     }
@@ -89,17 +58,13 @@ public class LogFetcher {
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
     }
-    public String getUsername() {
-        return username;
+
+    public HttpClientApi getHttpClientApi() {
+        return httpClientApi;
     }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
+
+    public void setHttpClientApi(HttpClientApi httpClientApi) {
+        this.httpClientApi = httpClientApi;
     }
     
 }
