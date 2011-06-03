@@ -3,3 +3,4 @@
 bin
 build
 lib
+src/net/corund/logviewer/config.properties

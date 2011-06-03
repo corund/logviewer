@@ -1,5 +1,6 @@
 package net.corund.logviewer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class LogFetcher {
         
         JsonReader reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
         reader.beginObject();
+        
+        @SuppressWarnings("unused")
         String name = reader.nextName();
         reader.beginArray();
         Gson gson = new Gson();
@@ -44,6 +47,43 @@ public class LogFetcher {
         reader.endObject();
         
         return entries;
+    }
+    
+    public List<Integer> days(int year, int month) throws Exception {
+        return requestForIntegers(Utils.join("http://",
+                host, baseUrl, "/",
+                String.format("%04d/%02d", year, month)));
+    }
+    
+    public List<Integer> month(int year) throws Exception {
+        return requestForIntegers(Utils.join("http://",
+                host, baseUrl, "/",
+                String.format("%04d", year)));
+    }
+    
+    private List<Integer> requestForIntegers(String uri) throws Exception {
+        InputStream is = httpClientApi.getContent(uri);
+        return readFromJsonToIntegers(is);
+    }
+    
+    private List<Integer> readFromJsonToIntegers(InputStream is) throws IOException {
+        List<Integer> ret = new ArrayList<Integer>();
+        JsonReader reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
+        reader.beginObject();
+        
+        @SuppressWarnings("unused")
+        String name = reader.nextName();
+        reader.beginArray();
+        while (reader.hasNext()) {
+            String temp = reader.nextString();
+            ret.add(Integer.valueOf(temp));
+        }
+        reader.endArray();
+        name = reader.nextName();
+        reader.nextInt();
+        reader.endObject();
+        
+        return ret;
     }
     
     public String getHost() {
@@ -66,5 +106,4 @@ public class LogFetcher {
     public void setHttpClientApi(HttpClientApi httpClientApi) {
         this.httpClientApi = httpClientApi;
     }
-    
 }

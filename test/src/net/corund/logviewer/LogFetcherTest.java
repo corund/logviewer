@@ -45,4 +45,25 @@ public class LogFetcherTest {
         assertEquals("dis", entry.getMessage());
         assertEquals(t2, entry.getDatetime().getTime() / 1000);
     }
+    
+    @Test
+    public void testDays() throws Exception {
+        LogFetcher fetcher = new LogFetcher();
+        fetcher.setHost("irc.host");
+        
+        HttpClientApi client = mock(HttpClientApi.class);
+        byte[] data = "{\"data\": [\"01\", \"02\", \"03\"], \"result\":200}".getBytes();
+        when(client.getContent("http://irc.host" + fetcher.getBaseUrl() + "/2011/01")).
+            thenReturn(new ByteArrayInputStream(data));
+        fetcher.setHttpClientApi(client);
+        
+        List<Integer> days = fetcher.days(2011, 1);
+        
+        assertNotNull(days);
+        assertEquals(3, days.size());
+        
+        assertEquals(1, days.get(0).intValue());
+        assertEquals(2, days.get(1).intValue());
+        assertEquals(3, days.get(2).intValue());
+    }
 }
