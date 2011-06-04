@@ -28,7 +28,6 @@ public class CommonsHttpClient implements HttpClientApi {
         c.getCredentialsProvider().setCredentials(
                 new AuthScope(host, 80),
                 new UsernamePasswordCredentials(username, password));
-        
         return c;
     }
     

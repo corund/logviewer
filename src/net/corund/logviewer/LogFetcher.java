@@ -45,6 +45,7 @@ public class LogFetcher {
         name = reader.nextName();
         reader.nextInt();
         reader.endObject();
+        reader.close();
         
         return entries;
     }

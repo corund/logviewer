@@ -58,7 +58,7 @@ public class SimpleCli {
     }
     
     public void display(List<LogEntry> entries) {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:MM");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         System.out.println("| nickname\t| time\t| message");
         System.out.println("+---------------+-------+---------------");
         for (LogEntry entry : entries) {
