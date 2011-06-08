@@ -1,0 +1,9 @@
+perl-kr IRC LogViewer
+
+If you want load this project in Eclipse,
+
+1. load in Eclipse java project
+2. run ant libraries task. This will download required libraries.
+3. set src, test/src folder as source folder
+4. add jars in lib, test/lib and resource/<os> as build path libraries.
+ 
