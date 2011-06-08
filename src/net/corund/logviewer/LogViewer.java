@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
@@ -16,9 +18,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
@@ -81,9 +85,15 @@ public class LogViewer {
         fetcher.setHttpClientApi(hClient);
     }
     
+    private Pattern linkPattern = Pattern.compile("https?://\\S+");
+    
     public Shell initUi(Display display) {
+        InputStream is = getClass().getResourceAsStream("icon64.png");
+        Image icon = new Image(display, is);
+        
         final Shell shell = new Shell(display);
         shell.setText("IRC LogViewer");
+        shell.setImage(icon);
         shell.setLayout(new FormLayout());
         
         this.gray = new Color(display, 0x60, 0x60, 0xa0);
@@ -165,6 +175,18 @@ public class LogViewer {
             }
         });
         
+        table.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                TableItem item = table.getSelection()[0];
+                String text = item.getText(2);
+                Matcher matcher = linkPattern.matcher(text);
+                if (matcher.matches()) {
+                    String link = matcher.group();
+                    Program.launch(link);
+                }
+            }
+        });
         return shell;
     }
     
