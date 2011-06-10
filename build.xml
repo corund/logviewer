@@ -4,6 +4,9 @@
     <property name="lib.dir" value="${basedir}/lib"/>
 	<property name="test.lib.dir" value="${basedir}/test/lib"/>
 	<property name="test.src.dir" value="${basedir}/test/src"/>
+    <property name="resource.dir" value="${basedir}/resource"/>
+    
+    <property name="package.version" value="1.0"/>
 	
     <property name="ivy.jar.dir" value="${build.dir}/ivy"/>
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
@@ -12,6 +15,10 @@
     
     <condition property="skip.ivy.download">
         <available file="${ivy.jar.file}"/>
+    </condition>
+    
+    <condition property="target.os" value="linux">
+        <os family="unix"/>
     </condition>
     
     <target name="prepare" description="-> Prepare build directories">
@@ -43,7 +50,56 @@
     	<ivy:retrieve pattern="${test.lib.dir}/[artifact]-[revision].[ext]" sync="true" conf="test" type="jar"/>
     </target>
     
+    <target name="build" depends="libraries">
+        <property name="package.path" value="net/corund/logviewer"/>
+
+        <condition property="config.exist">
+            <available file="src/${package.path}/config.properties"/>
+        </condition>
+        <fail message="Config file does not exist! Make yours refering example"
+            unless="config.exist"/>
+        
+        <fail message="Not supported os. Supported os: linux" unless="target.os"/>
+        
+        <delete dir="${build.dir}/classes"/>
+        <mkdir dir="${build.dir}/classes"/>
+        <javac srcdir="src" destdir="${build.dir}/classes" encoding="utf-8">
+            <classpath>
+                <fileset dir="${lib.dir}" includes="*.jar"/>
+                <fileset dir="${resource.dir}/${target.os}" includes="*.jar"/>
+            </classpath>
+        </javac>
+        
+        <copy file="src/${package.path}/config.properties" 
+            todir="${build.dir}/classes/${package.path}"/>
+        <copy file="src/${package.path}/icon64.png" 
+            todir="${build.dir}/classes/${package.path}"/>
+        
+        <jar destfile="${build.dir}/logviewer.jar" basedir="${build.dir}/classes"/>
+    </target>
+    
+    <target name="package.linux" depends="build">
+        <property name="package.dir" value="${build.dir}/IRCLogViewer"/>
+        <delete dir="${package.dir}"/>
+        <mkdir dir="${package.dir}/lib"/>
+        <copy todir="${package.dir}/lib">
+            <fileset dir="${lib.dir}" includes="*.jar"/>
+            <fileset dir="${resource.dir}/${target.os}" includes="*.jar"/>
+            <fileset file="${build.dir}/logviewer.jar"/>
+        </copy>
+        <copy file="${resource.dir}/${target.os}/run.sh" todir="${package.dir}"/>
+        <chmod file="${package.dir}/run.sh" perm="755"/>
+        <tar destfile="IRCLogViewer-${package.version}.tar.gz" compression="gzip" basedir="${build.dir}" includes="IRCLogViewer/*,IRCLogViewer/lib/*"/>
+    </target>
+    
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete>
+            <fileset dir="${basedir}" includes="*.tar.gz"/>
+        </delete>
+    </target>
+    
     <target name="all">
-        <echo message="all"/>
+        <antcall target="package.${target.os}"/>
     </target>
 </project>
