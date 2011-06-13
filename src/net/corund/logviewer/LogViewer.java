@@ -181,7 +181,7 @@ public class LogViewer {
                 TableItem item = table.getSelection()[0];
                 String text = item.getText(2);
                 Matcher matcher = linkPattern.matcher(text);
-                if (matcher.matches()) {
+                if (matcher.find()) {
                     String link = matcher.group();
                     Program.launch(link);
                 }
